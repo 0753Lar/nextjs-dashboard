@@ -1,0 +1,36 @@
+name: ci
+
+on:
+  push:
+    branches:
+      - main
+  schedule:
+    - cron: '10 10 * * 5'
+
+jobs:
+  anywaygreen:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v2
+
+      - name: Run or not?
+        id: schedule
+        run: |
+          random_number=$((RANDOM % 10))
+          echo $random_number
+          if [ "$random_number" -gt 2 ]; then
+            echo "::set-output name=result::continue"
+          fi
+
+      - name: Active
+        if: steps.schedule.outputs.result == 'continue'
+        run: |
+          git config --local user.email "limequery@163.com"
+          git config --local user.name "0753Ljuc"
+          git commit --allow-empty -m "make it active"
+          git push https://0753Ljuc:${{ secrets.PAT_CAT }}@github.com/0753Ljuc/nextjs-dashboard.git
+
+      - name: Cancel
+        if: steps.schedule.outputs.result != 'continue'
+        run: echo "Cancel"
